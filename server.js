@@ -1,44 +1,54 @@
+const createError = require('http-errors');
 const express = require('express');
-const mongoose = require('mongoose');
-const bodyParser = require('body-parser');
+const path = require('path');
+const cookieParser = require('cookie-parser');
+const logger = require('morgan');
+const methodOverride = require('method-override');
+
+// Connect to database
+require('./config/database');
+
+// Import routes
+const teamRoutes = require('./routes/teams');
+const playerRoutes = require('./routes/players');
+
+// Create Express app
 const app = express();
-const port = process.env.PORT || 3000;
 
-// // Connect to MongoDB
-// mongoose.connect('mongodb://localhost:27017/fantasy-soccer', {
-//   useNewUrlParser: true,
-//   useUnifiedTopology: true,
-//   useFindAndModify: false
-// }).then(() => {
-//   console.log('MongoDB connected');
-// }).catch((err) => {
-//   console.log(err);
-// });
+// Set up view engine
+app.set('views', path.join(__dirname, 'views'));
+app.set('view engine', 'ejs');
 
-// Set up body-parser middleware
-app.use(bodyParser.urlencoded({ extended: false }));
-app.use(bodyParser.json());
+// Set up middleware
+app.use(logger('dev'));
+app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
+app.use(cookieParser());
+app.use(express.static(path.join(__dirname, 'public')));
+app.use(methodOverride('_method'));
 
-// Set up static file serving
-app.use(express.static('public'));
+// Use routes
+app.use('/teams', teamRoutes);
+app.use('/players', playerRoutes);
 
-// Set up routes
-app.get('/', (req, res) => {
-  res.sendFile(__dirname + '/views/index.html');
+// Catch 404 and forward to error handler
+app.use(function(req, res, next) {
+  next(createError(404));
 });
 
-app.get('/api/teams', (req, res) => {
-  Team.find()
-    .populate('players')
-    .populate('user')
-    .exec((err, teams) => {
-      if (err) return res.status(500).send(err);
-      res.send(teams);
-    });
+// Error handler
+app.use(function(err, req, res, next) {
+  // Set locals, only providing error in development
+  res.locals.message = err.message;
+  res.locals.error = req.app.get('env') === 'development' ? err : {};
+
+  // Render the error page
+  res.status(err.status || 500);
+  res.render('error');
 });
 
-app.post('/api/teams', (req, res) => {
-  const team = new Team(req.body);
-  team.save((err) => {}
-
-)})
+// Start server
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, function() {
+  console.log(`Express app listening on port ${PORT}`);
+});

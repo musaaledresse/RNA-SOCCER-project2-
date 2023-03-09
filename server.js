@@ -4,16 +4,16 @@ const bodyParser = require('body-parser');
 const app = express();
 const port = process.env.PORT || 3000;
 
-// Connect to MongoDB
-mongoose.connect('mongodb://localhost:27017/fantasy-soccer', {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-  useFindAndModify: false
-}).then(() => {
-  console.log('MongoDB connected');
-}).catch((err) => {
-  console.log(err);
-});
+// // Connect to MongoDB
+// mongoose.connect('mongodb://localhost:27017/fantasy-soccer', {
+//   useNewUrlParser: true,
+//   useUnifiedTopology: true,
+//   useFindAndModify: false
+// }).then(() => {
+//   console.log('MongoDB connected');
+// }).catch((err) => {
+//   console.log(err);
+// });
 
 // Set up body-parser middleware
 app.use(bodyParser.urlencoded({ extended: false }));
